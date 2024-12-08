@@ -2,9 +2,7 @@ package basic.restful.controller;
 
 import basic.restful.bean.User;
 import basic.restful.dao.UserDaoService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,4 +24,11 @@ public class UserController {
     public User retrieveUser(@PathVariable int id) {
         return service.findOne(id);
     }
+
+    @PostMapping("/users")
+    public void createUser(@RequestBody User user) {
+        User savedUser = service.save(user);
+    }
+
+
 }
