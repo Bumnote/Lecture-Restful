@@ -1,6 +1,7 @@
 package basic.restful.controller;
 
 import basic.restful.bean.AdminUser;
+import basic.restful.bean.AdminUserV2;
 import basic.restful.bean.User;
 import basic.restful.dao.UserDaoService;
 import basic.restful.exception.UserNotFoundException;
@@ -25,7 +26,7 @@ public class AdminUserController {
 
     private final UserDaoService service;
 
-    @GetMapping("/users")
+    @GetMapping("/v1/users")
     public MappingJacksonValue retrieveAllUsers4Admin() {
 
         List<User> users = service.findAll();
@@ -46,7 +47,7 @@ public class AdminUserController {
         return mapping;
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/v1/users/{id}")
     public MappingJacksonValue retrieveUser4Admin(@PathVariable int id) {
 
         User user = service.findOne(id);
@@ -66,4 +67,24 @@ public class AdminUserController {
         return mapping;
     }
 
+    @GetMapping("/v2/users/{id}")
+    public MappingJacksonValue retrieveUser4AdminV2(@PathVariable int id) {
+
+        User user = service.findOne(id);
+
+        AdminUserV2 adminUser = new AdminUserV2();
+        if (user == null) {
+            throw new UserNotFoundException(String.format("ID[%s] not found", id));
+        } else {
+            BeanUtils.copyProperties(user, adminUser);
+            adminUser.setGrade("VIP");
+        }
+
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("id", "name", "joinDate", "ssn", "grade");
+        FilterProvider filters = new SimpleFilterProvider().addFilter("UserInfoV2", filter);
+        MappingJacksonValue mapping = new MappingJacksonValue(adminUser);
+        mapping.setFilters(filters);
+
+        return mapping;
+    }
 }
